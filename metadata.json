@@ -1,0 +1,8 @@
+{
+  "name": "Pro Mason",
+  "description": "A dual-mode construction services application connecting skilled workers with customers.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}
