@@ -189,7 +189,7 @@ const App: React.FC = () => {
         return <WalletScreen t={t} />;
       
       case AppView.PROFILE:
-        return <ProfileScreen onLogout={() => { setUserMode(null); setView(AppView.LANGUAGE_SELECTION); }} t={t} />;
+        return <ProfileScreen onLogout={() => { setUserMode(null); setView(AppView.LANGUAGE_SELECTION); }} onNavigate={handleNavigate} t={t} />;
       
       case AppView.CHAT:
         return <ChatScreen onBack={() => setView(AppView.CUSTOMER_HOME)} t={t} />;

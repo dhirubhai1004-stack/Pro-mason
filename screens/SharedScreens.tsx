@@ -179,15 +179,12 @@ const LiveMap: React.FC<LiveMapProps> = ({ status, workerImage }) => {
       </div>
 
       {/* Worker Marker (Animated) */}
-      {/* We calculate rough position along the quadratic curve for demo: Start(100,100) -> Control(200,400) -> End(350,500) */}
-      {/* Simplified linear interpolation for visual effect */}
       <div 
         className="absolute z-30 transition-all duration-100 ease-linear"
         style={{
-          // Very rough approximation of the curve path for visual demo
           top: `${100 + (workerPos * 4)}px`,
           left: `${100 + (workerPos * 2.5)}px`,
-          transform: `translate(-50%, -50%) rotate(${45}deg)` // approximate rotation
+          transform: `translate(-50%, -50%) rotate(${45}deg)`
         }}
       >
         <div className="relative">
@@ -198,7 +195,6 @@ const LiveMap: React.FC<LiveMapProps> = ({ status, workerImage }) => {
                <User size={24} className="text-primary" />
              )}
           </div>
-          {/* Vehicle Icon Badge */}
           <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-black rounded-full flex items-center justify-center border-2 border-white shadow-sm">
              <Navigation size={12} className="text-white transform rotate-45" />
           </div>
@@ -220,18 +216,48 @@ const LiveMap: React.FC<LiveMapProps> = ({ status, workerImage }) => {
 
 /* --- WALLET SCREEN --- */
 export const WalletScreen: React.FC<{t: (key: string) => string}> = ({ t }) => {
+  const [balance, setBalance] = useState(4250);
+  const [showAddMoney, setShowAddMoney] = useState(false);
+  const [amount, setAmount] = useState('');
+
+  const handleAdd = () => {
+    if (!amount) return;
+    setBalance(prev => prev + Number(amount));
+    setAmount('');
+    setShowAddMoney(false);
+  };
+
   return (
     <div className="p-6 pt-10">
       <h2 className="text-2xl font-bold mb-6">{t('nav_wallet')}</h2>
-      <div className="bg-secondary text-white rounded-2xl p-6 shadow-xl shadow-black/10 mb-8 relative overflow-hidden">
-        <div className="absolute -right-10 -top-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl"></div>
-        <p className="text-gray-400 text-sm mb-1">{t('total_balance')}</p>
-        <h3 className="text-4xl font-bold mb-6">₹4,250.00</h3>
-        <div className="flex gap-4">
-          <Button variant="primary" className="h-10 text-sm px-6">{t('top_up')}</Button>
-          <button className="h-10 px-6 rounded-xl border border-white/20 hover:bg-white/10 text-sm font-semibold transition-colors">{t('history')}</button>
+      
+      {showAddMoney ? (
+        <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 mb-8 animate-slide-up">
+           <h3 className="font-bold mb-4">{t('top_up')}</h3>
+           <input 
+             type="number" 
+             className="w-full text-3xl font-bold border-b-2 border-primary mb-6 outline-none py-2" 
+             placeholder="₹0"
+             value={amount}
+             onChange={e => setAmount(e.target.value)}
+             autoFocus
+           />
+           <div className="flex gap-3">
+             <Button variant="ghost" fullWidth onClick={() => setShowAddMoney(false)}>{t('cancel')}</Button>
+             <Button fullWidth onClick={handleAdd}>{t('pay')}</Button>
+           </div>
         </div>
-      </div>
+      ) : (
+        <div className="bg-secondary text-white rounded-2xl p-6 shadow-xl shadow-black/10 mb-8 relative overflow-hidden">
+          <div className="absolute -right-10 -top-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl"></div>
+          <p className="text-gray-400 text-sm mb-1">{t('total_balance')}</p>
+          <h3 className="text-4xl font-bold mb-6">₹{balance.toFixed(2)}</h3>
+          <div className="flex gap-4">
+            <Button variant="primary" className="h-10 text-sm px-6" onClick={() => setShowAddMoney(true)}>{t('top_up')}</Button>
+            <button className="h-10 px-6 rounded-xl border border-white/20 hover:bg-white/10 text-sm font-semibold transition-colors">{t('history')}</button>
+          </div>
+        </div>
+      )}
 
       <h3 className="font-bold text-lg mb-4">{t('recent_transactions')}</h3>
       <div className="space-y-4">
@@ -256,8 +282,44 @@ export const WalletScreen: React.FC<{t: (key: string) => string}> = ({ t }) => {
   );
 };
 
+/* --- EDIT PROFILE SCREEN --- */
+export const EditProfileScreen: React.FC<{ onBack: () => void; t: (key: string) => string }> = ({ onBack, t }) => {
+  const [name, setName] = useState('Rahul Sharma');
+  const [email, setEmail] = useState('rahul@example.com');
+
+  return (
+    <div className="h-full bg-white flex flex-col">
+       <div className="p-4 flex items-center gap-4 border-b border-gray-100">
+         <button onClick={onBack}><ArrowLeft size={24}/></button>
+         <h2 className="font-bold text-lg">{t('edit_profile')}</h2>
+       </div>
+       <div className="p-6 space-y-6 flex-1">
+          <div className="flex justify-center mb-6">
+             <div className="relative">
+                <img src="https://picsum.photos/seed/profile/150/150" className="w-24 h-24 rounded-full border-4 border-gray-100" />
+                <button className="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full border-2 border-white shadow-md">
+                   <Camera size={14} />
+                </button>
+             </div>
+          </div>
+          <div>
+             <label className="block text-sm font-medium text-gray-700 mb-1">{t('full_name')}</label>
+             <input value={name} onChange={e => setName(e.target.value)} className="w-full p-3 border rounded-xl" />
+          </div>
+          <div>
+             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+             <input value={email} onChange={e => setEmail(e.target.value)} className="w-full p-3 border rounded-xl" />
+          </div>
+       </div>
+       <div className="p-4 border-t">
+          <Button fullWidth onClick={onBack}>{t('submit_verification')}</Button>
+       </div>
+    </div>
+  );
+};
+
 /* --- PROFILE SCREEN --- */
-export const ProfileScreen: React.FC<{ onLogout: () => void; t: (key: string) => string }> = ({ onLogout, t }) => {
+export const ProfileScreen: React.FC<{ onLogout: () => void; onNavigate: (v: any) => void; t: (key: string) => string }> = ({ onLogout, onNavigate, t }) => {
   return (
     <div className="p-6 pt-10">
        <div className="flex items-center gap-4 mb-8">
@@ -270,12 +332,16 @@ export const ProfileScreen: React.FC<{ onLogout: () => void; t: (key: string) =>
 
        <div className="space-y-2">
          {[
-           { icon: User, label: t('edit_profile') },
-           { icon: MapPin, label: t('saved_addresses') },
-           { icon: Settings, label: t('settings') },
-           { icon: MessageSquare, label: t('help_support') },
+           { icon: User, label: t('edit_profile'), action: () => onNavigate('EDIT_PROFILE') },
+           { icon: MapPin, label: t('saved_addresses'), action: () => {} },
+           { icon: Settings, label: t('settings'), action: () => {} },
+           { icon: MessageSquare, label: t('help_support'), action: () => {} },
          ].map((item) => (
-           <button key={item.label} className="w-full bg-white p-4 rounded-xl border border-gray-100 flex items-center gap-4 hover:bg-gray-50 transition-colors">
+           <button 
+             key={item.label} 
+             onClick={item.action}
+             className="w-full bg-white p-4 rounded-xl border border-gray-100 flex items-center gap-4 hover:bg-gray-50 transition-colors"
+           >
              <item.icon size={20} className="text-gray-400" />
              <span className="font-medium flex-1 text-left">{item.label}</span>
              <span className="text-gray-300">›</span>
@@ -409,15 +475,40 @@ export const TrackingScreen: React.FC<{t: (key: string) => string}> = ({ t }) =>
 /* --- ACTIVE JOB SCREEN (Worker) --- */
 export const ActiveJobScreen: React.FC<{ job: Job; onBack: () => void; t: (key: string) => string }> = ({ job, onBack, t }) => {
   const [status, setStatus] = useState<'START' | 'IN_PROGRESS' | 'FINISH'>('START');
-  const [startOtp, setStartOtp] = useState('');
+  // Updated state for OTP (4 boxes)
+  const [startOtp, setStartOtp] = useState(['', '', '', '']);
   const [showOtpInput, setShowOtpInput] = useState(false);
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+     if(showOtpInput) {
+        setTimeout(() => otpRefs.current[0]?.focus(), 100);
+     }
+  }, [showOtpInput]);
 
   const handleStartJob = () => {
-    if (startOtp === '4812') { // Mock OTP check
+    const code = startOtp.join('');
+    if (code === '4812') { // Mock OTP check
       setStatus('IN_PROGRESS');
       setShowOtpInput(false);
     } else {
       alert('Invalid OTP. Use 4812');
+    }
+  };
+
+  const handleOtpChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+    const newOtp = [...startOtp];
+    newOtp[index] = value;
+    setStartOtp(newOtp);
+    if (value && index < 3) {
+      otpRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !startOtp[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus();
     }
   };
 
@@ -495,19 +586,25 @@ export const ActiveJobScreen: React.FC<{ job: Job; onBack: () => void; t: (key: 
                        <p className="font-bold text-sm">{t('start_otp_label')}</p>
                        <button onClick={() => setShowOtpInput(false)}><ArrowLeft size={16} /></button>
                     </div>
-                    <div className="flex gap-2">
-                       <input 
-                         type="text" 
-                         placeholder="Enter 4-digit OTP" 
-                         className="flex-1 p-3 text-center text-xl font-bold tracking-widest border rounded-xl"
-                         maxLength={4}
-                         value={startOtp}
-                         onChange={(e) => setStartOtp(e.target.value)}
-                       />
-                       <Button onClick={handleStartJob} disabled={startOtp.length !== 4}>
-                         GO
-                       </Button>
+                    {/* OTP Split Input */}
+                    <div className="flex gap-3 justify-center">
+                       {startOtp.map((digit, i) => (
+                         <input 
+                           key={i}
+                           ref={el => { otpRefs.current[i] = el; }}
+                           type="text"
+                           inputMode="numeric"
+                           maxLength={1}
+                           className="w-12 h-12 border-2 border-gray-200 rounded-xl text-center text-xl font-bold focus:border-primary focus:outline-none focus:scale-105 transition-transform bg-white shadow-sm"
+                           value={digit}
+                           onChange={(e) => handleOtpChange(i, e.target.value)}
+                           onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                         />
+                       ))}
                     </div>
+                    <Button onClick={handleStartJob} disabled={startOtp.join('').length !== 4} fullWidth>
+                       GO
+                    </Button>
                  </div>
               )}
 

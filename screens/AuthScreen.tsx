@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { UserMode, AppView } from '../types';
 import { Button } from '../components/Button';
 import { ArrowLeft, Phone, ShieldCheck } from 'lucide-react';
@@ -14,8 +14,21 @@ interface AuthScreenProps {
 export const AuthScreen: React.FC<AuthScreenProps> = ({ userMode, onSuccess, onBack, t }) => {
   const [step, setStep] = useState<'PHONE' | 'OTP'>('PHONE');
   const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
+  // Changed OTP state to array for easier index management
+  const [otp, setOtp] = useState(['', '', '', '']);
   const [loading, setLoading] = useState(false);
+  
+  // Refs for auto-focus
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Focus first input when step changes to OTP
+  useEffect(() => {
+    if (step === 'OTP') {
+      setTimeout(() => {
+        otpRefs.current[0]?.focus();
+      }, 100);
+    }
+  }, [step]);
 
   const handleSendOtp = () => {
     if (phone.length < 10) return;
@@ -23,16 +36,39 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ userMode, onSuccess, onB
     setTimeout(() => {
       setLoading(false);
       setStep('OTP');
+      setOtp(['', '', '', '']); // Reset OTP
     }, 1000);
   };
 
   const handleVerifyOtp = () => {
-    if (otp.length < 4) return;
+    const otpValue = otp.join('');
+    if (otpValue.length < 4) return;
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
       onSuccess();
     }, 1000);
+  };
+
+  const handleOtpChange = (index: number, value: string) => {
+    // Only allow numbers
+    if (!/^\d*$/.test(value)) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    // Auto-focus next input
+    if (value && index < 3) {
+      otpRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Move to previous on Backspace if empty
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus();
+    }
   };
 
   return (
@@ -79,30 +115,24 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ userMode, onSuccess, onB
         ) : (
           <div className="space-y-6">
             <div className="flex gap-4 justify-center">
-              {[0, 1, 2, 3].map((i) => (
+              {otp.map((digit, i) => (
                 <input
                   key={i}
+                  ref={(el) => { otpRefs.current[i] = el; }}
                   type="text"
+                  inputMode="numeric"
                   maxLength={1}
-                  className="w-14 h-14 border-2 border-gray-200 rounded-xl text-center text-2xl font-bold focus:border-primary focus:outline-none"
-                  value={otp[i] || ''}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val) {
-                      setOtp(prev => {
-                        const next = prev.split('');
-                        next[i] = val;
-                        return next.join('');
-                      });
-                    }
-                  }}
+                  className="w-14 h-14 border-2 border-gray-200 rounded-xl text-center text-2xl font-bold focus:border-primary focus:outline-none transition-all focus:scale-105 focus:bg-orange-50 focus:shadow-md"
+                  value={digit}
+                  onChange={(e) => handleOtpChange(i, e.target.value)}
+                  onKeyDown={(e) => handleOtpKeyDown(i, e)}
                 />
               ))}
             </div>
             <Button 
               fullWidth 
               onClick={handleVerifyOtp} 
-              disabled={otp.length !== 4}
+              disabled={otp.join('').length !== 4}
               isLoading={loading}
             >
               {t('verify_login')}

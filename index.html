@@ -15,7 +15,25 @@
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <script type="importmap">
+    
+    <!-- Tailwind CDN (Backup for Preview) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ['Inter', 'sans-serif'] },
+            colors: {
+              primary: '#F7951D',
+              secondary: '#1A1A1A',
+              light: '#F5F5F5',
+              dark: '#121212'
+            }
+          }
+        }
+      }
+    </script>
+<script type="importmap">
 {
   "imports": {
     "react": "https://esm.sh/react@^19.2.1",
