@@ -1,3 +1,4 @@
+
 // Minimal Service Worker to enable PWA Install Prompt
 self.addEventListener('install', (e) => {
   self.skipWaiting();
