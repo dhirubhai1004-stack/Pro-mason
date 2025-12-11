@@ -13,6 +13,9 @@ export const CustomerHome: React.FC<CustomerHomeProps> = ({ onNavigate, t }) => 
   const [viewMode, setViewMode] = useState<'LIST' | 'MAP'>('LIST');
   const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
 
+  // Show only first 6 categories on home
+  const displayCategories = CATEGORIES.slice(0, 6);
+
   return (
     <div className="flex flex-col min-h-full">
       {/* Header */}
@@ -57,10 +60,15 @@ export const CustomerHome: React.FC<CustomerHomeProps> = ({ onNavigate, t }) => 
         <section>
           <div className="flex justify-between items-end mb-4">
             <h3 className="font-bold text-lg text-secondary">{t('services')}</h3>
-            <button className="text-primary text-sm font-medium">{t('see_all')}</button>
+            <button 
+              onClick={() => onNavigate(AppView.ALL_CATEGORIES)}
+              className="text-primary text-sm font-medium"
+            >
+              {t('see_all')}
+            </button>
           </div>
           <div className="grid grid-cols-3 gap-4">
-            {CATEGORIES.map((cat) => (
+            {displayCategories.map((cat) => (
               <button 
                 key={cat.id}
                 onClick={() => onNavigate(AppView.SERVICE_CATEGORY, { category: cat.id })}
@@ -99,7 +107,7 @@ export const CustomerHome: React.FC<CustomerHomeProps> = ({ onNavigate, t }) => 
 
           {viewMode === 'LIST' ? (
             <div className="space-y-4 animate-fade-in">
-              {MOCK_WORKERS.map((worker) => (
+              {MOCK_WORKERS.slice(0, 5).map((worker) => (
                 <div 
                   key={worker.id}
                   onClick={() => onNavigate(AppView.WORKER_PROFILE, { worker })}
@@ -149,7 +157,7 @@ export const CustomerHome: React.FC<CustomerHomeProps> = ({ onNavigate, t }) => 
                </div>
 
                {/* Worker Pins */}
-               {MOCK_WORKERS.map((worker, index) => {
+               {MOCK_WORKERS.slice(0, 5).map((worker, index) => {
                  // Deterministic mock positions
                  const top = 20 + (index * 25) % 60; 
                  const left = 20 + (index * 30) % 60;

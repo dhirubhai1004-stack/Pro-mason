@@ -1,9 +1,101 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '../components/Button';
 import { MOCK_TRANSACTIONS, MOCK_WORKERS, MOCK_JOBS } from '../constants';
-import { ArrowLeft, CreditCard, IndianRupee, MapPin, Phone, MessageSquare, Camera, Navigation, User, Settings, LogOut, CheckCircle, Share2, Compass, Home, Shield, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, CreditCard, IndianRupee, MapPin, Phone, MessageSquare, Camera, Navigation, User, Settings, LogOut, CheckCircle, Share2, Compass, Home, Shield, AlertTriangle, Send } from 'lucide-react';
 import { Job, Worker } from '../types';
+
+/* --- CHAT SCREEN --- */
+export const ChatScreen: React.FC<{ onBack: () => void; t: (key: string) => string }> = ({ onBack, t }) => {
+  const [msg, setMsg] = useState('');
+  const [messages, setMessages] = useState([
+    { id: 1, text: 'Hello, are you available?', sender: 'me', time: '10:00 AM' },
+    { id: 2, text: 'Yes sir, I can reach in 15 mins.', sender: 'other', time: '10:02 AM' },
+  ]);
+  const endRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const send = () => {
+    if(!msg.trim()) return;
+    setMessages([...messages, { id: Date.now(), text: msg, sender: 'me', time: 'Now' }]);
+    setMsg('');
+    // Mock reply
+    setTimeout(() => {
+        setMessages(prev => [...prev, { id: Date.now(), text: 'Ok, see you.', sender: 'other', time: 'Now' }]);
+    }, 1500);
+  };
+
+  return (
+    <div className="h-full flex flex-col bg-gray-50">
+       <div className="bg-white p-4 flex items-center gap-4 shadow-sm border-b z-10">
+         <button onClick={onBack}><ArrowLeft size={24} /></button>
+         <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gray-200 rounded-full overflow-hidden">
+               <img src={MOCK_WORKERS[0].image} className="w-full h-full object-cover"/>
+            </div>
+            <div>
+               <h3 className="font-bold text-sm">{MOCK_WORKERS[0].name}</h3>
+               <p className="text-xs text-green-600 font-medium">Online</p>
+            </div>
+         </div>
+       </div>
+       
+       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {messages.map(m => (
+             <div key={m.id} className={`flex ${m.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${m.sender === 'me' ? 'bg-primary text-white rounded-tr-none' : 'bg-white border rounded-tl-none'}`}>
+                   <p>{m.text}</p>
+                   <p className={`text-[10px] mt-1 ${m.sender === 'me' ? 'text-white/70' : 'text-gray-400'}`}>{m.time}</p>
+                </div>
+             </div>
+          ))}
+          <div ref={endRef} />
+       </div>
+
+       <div className="p-3 bg-white border-t flex gap-2">
+          <input 
+            className="flex-1 bg-gray-100 rounded-full px-4 outline-none text-sm" 
+            placeholder={t('type_message')} 
+            value={msg}
+            onChange={e => setMsg(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && send()}
+          />
+          <button onClick={send} className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center">
+             <Send size={18} />
+          </button>
+       </div>
+    </div>
+  );
+};
+
+/* --- BOOKINGS SCREEN (History) --- */
+export const BookingsScreen: React.FC<{ t: (key: string) => string }> = ({ t }) => {
+  return (
+    <div className="p-6 pt-10">
+       <h2 className="text-2xl font-bold mb-6">{t('bookings')}</h2>
+       <div className="space-y-4">
+          {MOCK_JOBS.map(job => (
+             <div key={job.id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                <div className="flex justify-between items-start mb-2">
+                   <h3 className="font-bold">{job.type}</h3>
+                   <span className={`text-xs px-2 py-1 rounded font-bold ${job.status === 'COMPLETED' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
+                      {job.status}
+                   </span>
+                </div>
+                <p className="text-sm text-gray-500 mb-2">{job.date}</p>
+                <div className="flex justify-between items-center text-sm">
+                   <span className="font-bold">₹{job.amount}</span>
+                   <button className="text-primary font-medium">{t('help_support')}</button>
+                </div>
+             </div>
+          ))}
+       </div>
+    </div>
+  );
+};
 
 /* --- LIVE MAP COMPONENT (MOCK) --- */
 interface LiveMapProps {
@@ -334,7 +426,6 @@ export const ActiveJobScreen: React.FC<{ job: Job; onBack: () => void; t: (key: 
       {/* Map Background for Navigation Mode */}
       <div className="absolute inset-0 z-0">
          <LiveMap status={status === 'START' ? 'ON_WAY' : 'STARTED'} />
-         {/* Overlay gradient to make text readable if needed, or keeping it clear for nav */}
       </div>
 
       {/* Top Header Floating */}
@@ -354,8 +445,6 @@ export const ActiveJobScreen: React.FC<{ job: Job; onBack: () => void; t: (key: 
              </button>
          </div>
       </div>
-
-      {/* Spacer to push content down if needed, but we use absolute positioning for map feel */}
       
       {/* Bottom Sheet Area */}
       <div className="absolute bottom-0 left-0 right-0 z-20">

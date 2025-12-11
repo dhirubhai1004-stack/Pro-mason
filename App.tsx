@@ -5,10 +5,12 @@ import { SplashScreen } from './screens/SplashScreen';
 import { LanguageSelectionScreen } from './screens/LanguageSelectionScreen';
 import { AuthScreen } from './screens/AuthScreen';
 import { CustomerHome } from './screens/customer/CustomerHome';
+import { AllCategoriesScreen } from './screens/customer/AllCategoriesScreen';
+import { ServiceCategoryScreen } from './screens/customer/ServiceCategoryScreen';
 import { BookingFlow } from './screens/customer/BookingFlow';
 import { WorkerHome } from './screens/worker/WorkerHome';
 import { WorkerOnboarding } from './screens/worker/WorkerOnboarding';
-import { WalletScreen, ProfileScreen, TrackingScreen, ActiveJobScreen } from './screens/SharedScreens';
+import { WalletScreen, ProfileScreen, TrackingScreen, ActiveJobScreen, ChatScreen, BookingsScreen } from './screens/SharedScreens';
 import { AppView, UserMode, Worker, Job } from './types';
 import { MOCK_WORKERS, MOCK_JOBS } from './constants';
 import { ArrowLeft, Star } from 'lucide-react';
@@ -74,6 +76,7 @@ const App: React.FC = () => {
   const [view, setView] = useState<AppView>(AppView.LANGUAGE_SELECTION);
   const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [language, setLanguage] = useState<LanguageCode>('en');
 
   // Translation helper
@@ -89,10 +92,8 @@ const App: React.FC = () => {
     if (newView === AppView.ACTIVE_JOB && data?.job) {
       setSelectedJob(data.job);
     }
-    if (newView === AppView.SERVICE_CATEGORY) {
-       // Ideally filter workers, for now just go to home as simplified list
-       setView(AppView.CUSTOMER_HOME); 
-       return;
+    if (newView === AppView.SERVICE_CATEGORY && data?.category) {
+       setSelectedCategoryId(data.category);
     }
     setView(newView);
   };
@@ -128,6 +129,25 @@ const App: React.FC = () => {
       case AppView.CUSTOMER_HOME:
         return <CustomerHome onNavigate={handleNavigate} t={t} />;
       
+      case AppView.ALL_CATEGORIES:
+        return (
+          <AllCategoriesScreen 
+            onBack={() => setView(AppView.CUSTOMER_HOME)}
+            onSelectCategory={(id) => handleNavigate(AppView.SERVICE_CATEGORY, { category: id })}
+            t={t}
+          />
+        );
+
+      case AppView.SERVICE_CATEGORY:
+        return (
+          <ServiceCategoryScreen 
+            categoryId={selectedCategoryId || 'mason'}
+            onBack={() => setView(AppView.ALL_CATEGORIES)}
+            onSelectWorker={(worker) => handleNavigate(AppView.WORKER_PROFILE, { worker })}
+            t={t}
+          />
+        );
+
       case AppView.WORKER_PROFILE:
         return selectedWorker ? (
           <WorkerProfileView 
@@ -150,6 +170,9 @@ const App: React.FC = () => {
 
       case AppView.TRACKING:
         return <TrackingScreen t={t} />;
+      
+      case AppView.BOOKINGS:
+        return <BookingsScreen t={t} />;
 
       /* WORKER VIEWS */
       case AppView.WORKER_HOME:
@@ -167,6 +190,9 @@ const App: React.FC = () => {
       
       case AppView.PROFILE:
         return <ProfileScreen onLogout={() => { setUserMode(null); setView(AppView.LANGUAGE_SELECTION); }} t={t} />;
+      
+      case AppView.CHAT:
+        return <ChatScreen onBack={() => setView(AppView.CUSTOMER_HOME)} t={t} />;
 
       default:
         return <div className="p-10 text-center">View Not Found</div>;

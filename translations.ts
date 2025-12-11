@@ -46,6 +46,10 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "map_view": "Map",
     "hr": "hr",
     "yrs_exp": "yrs exp.",
+    "all_categories": "All Categories",
+    "home_services": "Home Services",
+    "industrial_services": "Industrial & Factory",
+    "professional_services": "Professional & Architecture",
 
     // Categories
     "mason": "Mason",
@@ -54,6 +58,17 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "waterproofing": "Waterproof",
     "epoxy": "Epoxy",
     "carpenter": "Carpenter",
+    "plumber": "Plumber",
+    "electrician": "Electrician",
+    "gardener": "Gardener",
+    "welder": "Welder",
+    "fitter": "Fitter",
+    "helper": "Factory Helper",
+    "operator": "Machine Op.",
+    "driver_heavy": "Heavy Driver",
+    "architect": "Architect",
+    "civil_eng": "Civil Eng.",
+    "interior": "Interior Des.",
 
     // Worker Profile & Booking
     "jobs_completed": "Jobs",
@@ -89,10 +104,12 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "upcoming": "Upcoming",
     "est_hours": "Est. 4 hrs",
 
-    // Active Job
+    // Active Job & Shared
     "ongoing_job": "ONGOING JOB",
     "navigate": "Navigate",
     "chat": "Chat",
+    "chat_title": "Chat with",
+    "type_message": "Type a message...",
     "job_progress": "Job Progress",
     "start_job": "Start Job",
     "work_in_progress": "Work in Progress",
@@ -109,6 +126,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "total_balance": "Total Balance",
     "top_up": "Top Up",
     "history": "History",
+    "bookings": "My Bookings",
     "recent_transactions": "Recent Transactions",
     "edit_profile": "Edit Profile",
     "saved_addresses": "Saved Addresses",
@@ -190,6 +208,10 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "map_view": "मैप",
     "hr": "घंटा",
     "yrs_exp": "वर्ष अनुभव",
+    "all_categories": "सभी श्रेणियां",
+    "home_services": "घरेलू सेवाएं",
+    "industrial_services": "औद्योगिक और कारखाना",
+    "professional_services": "पेशेवर और आर्किटेक्चर",
 
     // Categories
     "mason": "राजमिस्त्री",
@@ -198,6 +220,17 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "waterproofing": "वॉटरप्रूफिंग",
     "epoxy": "इपॉक्सी",
     "carpenter": "बढ़ई",
+    "plumber": "प्लंबर",
+    "electrician": "बिजली मिस्त्री",
+    "gardener": "माली",
+    "welder": "वेल्डर",
+    "fitter": "फिटर",
+    "helper": "फैक्ट्री हेल्पर",
+    "operator": "मशीन ऑपरेटर",
+    "driver_heavy": "हेवी ड्राइवर",
+    "architect": "आर्किटेक्ट",
+    "civil_eng": "सिविल इंजीनियर",
+    "interior": "इंटीरियर डिज़ाइनर",
 
     // Worker Profile & Booking
     "jobs_completed": "कार्य",
@@ -237,6 +270,8 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "ongoing_job": "चल रहा काम",
     "navigate": "दिशा",
     "chat": "चैट",
+    "chat_title": "के साथ चैट",
+    "type_message": "संदेश टाइप करें...",
     "job_progress": "कार्य प्रगति",
     "start_job": "काम शुरू करें",
     "work_in_progress": "कार्य प्रगति पर है",
@@ -253,6 +288,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "total_balance": "कुल शेष",
     "top_up": "टॉप अप",
     "history": "इतिहास",
+    "bookings": "मेरी बुकिंग",
     "recent_transactions": "हाल ही के लेनदेन",
     "edit_profile": "प्रोफाइल संपादित करें",
     "saved_addresses": "सहेजे गए पते",
@@ -290,11 +326,10 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "verification_pending": "सत्यापन लंबित",
     "verification_desc": "आपके दस्तावेज़ समीक्षाधीन हैं। एक बार स्वीकृत होने के बाद आपको सूचित किया जाएगा।",
   },
-  // Fallbacks for other languages to English for this demo
+  // Fallbacks
   mr: {}, bn: {}, ta: {}, te: {}, gu: {}, kn: {}, ml: {}, pa: {}
 };
 
-// Helper to fill missing translations with English
 Object.keys(TRANSLATIONS).forEach(key => {
   if (key !== 'en' && key !== 'hi') {
     TRANSLATIONS[key as LanguageCode] = TRANSLATIONS['en'];
