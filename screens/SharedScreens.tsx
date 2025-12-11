@@ -496,19 +496,28 @@ export const ActiveJobScreen: React.FC<{ job: Job; onBack: () => void; t: (key: 
     }
   };
 
-  const handleOtpChange = (index: number, value: string) => {
+  const handleOtpChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
     if (!/^\d*$/.test(value)) return;
+
+    // Type to replace logic
+    const digit = value.slice(-1);
+
     const newOtp = [...startOtp];
-    newOtp[index] = value;
+    newOtp[index] = digit;
     setStartOtp(newOtp);
-    if (value && index < 3) {
+
+    if (digit && index < 3) {
       otpRefs.current[index + 1]?.focus();
     }
   };
 
   const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Backspace' && !startOtp[index] && index > 0) {
-      otpRefs.current[index - 1]?.focus();
+    if (e.key === 'Backspace') {
+       if (!startOtp[index] && index > 0) {
+          e.preventDefault();
+          otpRefs.current[index - 1]?.focus();
+       } 
     }
   };
 
@@ -594,10 +603,10 @@ export const ActiveJobScreen: React.FC<{ job: Job; onBack: () => void; t: (key: 
                            ref={el => { otpRefs.current[i] = el; }}
                            type="text"
                            inputMode="numeric"
-                           maxLength={1}
+                           // No maxLength allowed for replace behavior
                            className="w-12 h-12 border-2 border-gray-200 rounded-xl text-center text-xl font-bold focus:border-primary focus:outline-none focus:scale-105 transition-transform bg-white shadow-sm"
                            value={digit}
-                           onChange={(e) => handleOtpChange(i, e.target.value)}
+                           onChange={(e) => handleOtpChange(i, e)}
                            onKeyDown={(e) => handleOtpKeyDown(i, e)}
                          />
                        ))}

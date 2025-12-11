@@ -14,7 +14,6 @@ interface AuthScreenProps {
 export const AuthScreen: React.FC<AuthScreenProps> = ({ userMode, onSuccess, onBack, t }) => {
   const [step, setStep] = useState<'PHONE' | 'OTP'>('PHONE');
   const [phone, setPhone] = useState('');
-  // Changed OTP state to array for easier index management
   const [otp, setOtp] = useState(['', '', '', '']);
   const [loading, setLoading] = useState(false);
   
@@ -50,24 +49,33 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ userMode, onSuccess, onB
     }, 1000);
   };
 
-  const handleOtpChange = (index: number, value: string) => {
-    // Only allow numbers
+  const handleOtpChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Allow numbers only
     if (!/^\d*$/.test(value)) return;
 
+    // Get the last character entered to allow "replace" behavior
+    const digit = value.slice(-1);
+
     const newOtp = [...otp];
-    newOtp[index] = value;
+    newOtp[index] = digit;
     setOtp(newOtp);
 
-    // Auto-focus next input
-    if (value && index < 3) {
+    // Auto-focus next input if we have a digit
+    if (digit && index < 3) {
       otpRefs.current[index + 1]?.focus();
     }
   };
 
   const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     // Move to previous on Backspace if empty
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      otpRefs.current[index - 1]?.focus();
+    if (e.key === 'Backspace') {
+      if (!otp[index] && index > 0) {
+        e.preventDefault(); // Prevent deleting content of previous field immediately
+        otpRefs.current[index - 1]?.focus();
+      } else if (otp[index]) {
+        // Allow default backspace behavior (clearing the field)
+      }
     }
   };
 
@@ -121,10 +129,10 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ userMode, onSuccess, onB
                   ref={(el) => { otpRefs.current[i] = el; }}
                   type="text"
                   inputMode="numeric"
-                  maxLength={1}
+                  // Removed maxLength={1} to allow replacing value by typing
                   className="w-14 h-14 border-2 border-gray-200 rounded-xl text-center text-2xl font-bold focus:border-primary focus:outline-none transition-all focus:scale-105 focus:bg-orange-50 focus:shadow-md"
                   value={digit}
-                  onChange={(e) => handleOtpChange(i, e.target.value)}
+                  onChange={(e) => handleOtpChange(i, e)}
                   onKeyDown={(e) => handleOtpKeyDown(i, e)}
                 />
               ))}
